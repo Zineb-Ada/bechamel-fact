@@ -1,0 +1,19 @@
+(executable
+ (name fact)
+ (modules fact)
+ (public_name bechamel-js.examples.fact)
+ (package bechamel-js)
+ (libraries bechamel bechamel-js))
+
+(rule
+ (targets fact.json)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run ./fact.exe))))
+
+(rule
+ (targets fact.html)
+ (mode promote)
+ (action
+  (system "%{bin:bechamel-html} < %{dep:fact.json} > %{targets}")))
