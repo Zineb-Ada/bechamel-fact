@@ -1,4 +1,3 @@
-external random_seed : unit -> int array = "caml_sys_random_seed"
 let seed = "4EygbdYh+v35vvrmD9YYP4byT5E3H7lTeXJiIj+dQnc="
 let seed = Base64.decode_exn seed
 let seed =
@@ -19,7 +18,6 @@ let random length =
     | n -> Char.(chr (code 'A' + n - 10 - 26)) in
   String.init length get
 
-
 open Bechamel
 open Toolkit
 
@@ -35,17 +33,30 @@ let hash_neq_1 =
   go 10
 
 (* let ( <.> ) *)
+(* function equal done*)
+let test_equal0 =
+  Test.make ~name:"eqaf equal equal" (Staged.stage @@ fun () -> Eqaf.equal hash_eq_0 hash_eq_1)
+let test_equal1 =
+  Test.make ~name:"eqaf equal not equal" (Staged.stage @@ fun () -> Eqaf.equal hash_neq_0 hash_neq_1)
 
-let test0 =
+let test_equal2 =
+  Test.make ~name:"string equal equal" (Staged.stage @@ fun () -> String.equal hash_eq_0 hash_eq_1)
+
+let test_equal3 =
+  Test.make ~name:"string equal not equal" (Staged.stage @@ fun () -> String.equal hash_neq_0 hash_neq_1)
+
+(* function compare done*)
+let test_compare0 =
   Test.make ~name:"eqaf compare equal" (Staged.stage @@ fun () -> Eqaf.compare_be hash_eq_0 hash_eq_1)
-let test1 =
+let test_compare1 =
   Test.make ~name:"eqaf compare not equal" (Staged.stage @@ fun () -> Eqaf.compare_be hash_neq_0 hash_neq_1)
 
-let test2 =
+let test_compare2 =
   Test.make ~name:"string compare equal" (Staged.stage @@ fun () -> String.compare hash_eq_0 hash_eq_1)
 
-let test3 =
+let test_compare3 =
   Test.make ~name:"string compare not equal" (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
+
 
 let benchmark () =
   let ols =
@@ -58,10 +69,14 @@ let benchmark () =
     Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5)
       ~kde:(Some 1000) ()
   in
+  let test_equal = Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal0; test_equal1; test_equal2; test_equal3 ] 
+  in 
+  let test_compare = Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ test_compare0; test_compare1; test_compare2; test_compare3 ] 
+  in
   let raw_results =
     Benchmark.all cfg instances
-      (Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ test0; test1; test2; test3 ])
-  in
+    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare ])
+  in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in

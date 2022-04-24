@@ -1,4 +1,3 @@
-external random_seed : unit -> int array = "caml_sys_random_seed"
 let seed = "4EygbdYh+v35vvrmD9YYP4byT5E3H7lTeXJiIj+dQnc="
 let seed = Base64.decode_exn seed
 let seed =
@@ -18,7 +17,6 @@ let random length =
     | n when n < 10 + 26 -> Char.(chr (code 'a' + n - 10))
     | n -> Char.(chr (code 'A' + n - 10 - 26)) in
   String.init length get
-
 
 open Bechamel
 open Toolkit
@@ -68,16 +66,14 @@ let benchmark () =
     Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5)
       ~kde:(Some 1000) ()
   in
-  (* let raw_results =
-    Benchmark.all cfg instances
-      
-  in *)
+  let test_equal = Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ teste0; teste1; teste2; teste3 ] 
+  in 
+  let test_compare = Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ testc0; testc1; testc2; testc3 ] 
+  in
   let raw_results =
     Benchmark.all cfg instances
-      (* (Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ teste0; teste1; teste2; teste3 ]) *)
-      (Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ testc0; testc1; testc2; testc3;teste0; teste1; teste2; teste3 ])
-      
-  in
+    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare ])
+  in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
