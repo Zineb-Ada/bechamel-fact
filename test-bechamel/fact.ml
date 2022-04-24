@@ -23,6 +23,7 @@ open Toolkit
 
 let hash_eq_0 = random 4096
 let hash_eq_1 = Bytes.to_string (Bytes.of_string hash_eq_0)
+let chr_into_hash_eq_0 = hash_eq_0.[Random.int 4096]
 
 let hash_neq_0 = random 4096
 let hash_neq_1 =
@@ -30,6 +31,13 @@ let hash_neq_1 =
     if limit <= 0 then failwith "Impossible to generate different hashes." ;
     let res = random 4096 in
     if res = hash_neq_0 then go (pred limit) else res in
+  go 10
+
+let random_chr =
+  let rec go limit =
+    if limit <= 0 then failwith "Impossible to generate a byte which does not appear into hash_neq_0." ;
+    let res = Char.chr (Random.int 256) in
+    if not (String.contains hash_neq_0 res) then res else go (pred limit) in
   go 10
 
 (* let ( <.> ) *)
@@ -57,6 +65,25 @@ let test_compare2 =
 let test_compare3 =
   Test.make ~name:"string compare not equal" (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
 
+(* function exists *)
+let constant = ref (Char.code chr_into_hash_eq_0)
+let reset () = constant := Char.code chr_into_hash_eq_0
+let switch () = constant := Char.code random_chr
+
+let f (v : int) = v = !constant
+
+let test_exists0 =
+  Test.make ~name:"eqaf exists equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f hash_eq_0)
+let test_exists1 =
+  Test.make ~name:"eqaf exists not equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f hash_neq_0)
+
+let test_exists2 =
+  Test.make ~name:"string exists equal" (Staged.stage @@ fun () -> String.contains hash_eq_0 chr_into_hash_eq_0)
+
+let test_exists3 =
+  Test.make ~name:"string exists not equal" (Staged.stage @@ fun () -> String.contains hash_neq_0 random_chr)
+
+(* function  *)
 
 let benchmark () =
   let ols =
@@ -73,9 +100,11 @@ let benchmark () =
   in 
   let test_compare = Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ test_compare0; test_compare1; test_compare2; test_compare3 ] 
   in
+  let test_exists = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
+  in
   let raw_results =
     Benchmark.all cfg instances
-    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare ])
+    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare; test_exists ])
   in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
