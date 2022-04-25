@@ -41,7 +41,7 @@ let random_chr =
   go 10
 
 (* let ( <.> ) *)
-(* function equal done*)
+(* 1- function equal done*)
 let test_equal0 =
   Test.make ~name:"eqaf equal equal" (Staged.stage @@ fun () -> Eqaf.equal hash_eq_0 hash_eq_1)
 let test_equal1 =
@@ -53,7 +53,7 @@ let test_equal2 =
 let test_equal3 =
   Test.make ~name:"string equal not equal" (Staged.stage @@ fun () -> String.equal hash_neq_0 hash_neq_1)
 
-(* function compare done*)
+(* 2- function compare done*)
 let test_compare0 =
   Test.make ~name:"eqaf compare equal" (Staged.stage @@ fun () -> Eqaf.compare_be hash_eq_0 hash_eq_1)
 let test_compare1 =
@@ -65,10 +65,10 @@ let test_compare2 =
 let test_compare3 =
   Test.make ~name:"string compare not equal" (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
 
-(* function exists *)
+(* 3- function exists *)
 let constant = ref (Char.code chr_into_hash_eq_0)
-let reset () = constant := Char.code chr_into_hash_eq_0
-let switch () = constant := Char.code random_chr
+(* let reset () = constant := Char.code chr_into_hash_eq_0
+let switch () = constant := Char.code random_chr *)
 
 let f (v : int) = v = !constant
 
@@ -76,14 +76,31 @@ let test_exists0 =
   Test.make ~name:"eqaf exists equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f hash_eq_0)
 let test_exists1 =
   Test.make ~name:"eqaf exists not equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f hash_neq_0)
-
 let test_exists2 =
   Test.make ~name:"string exists equal" (Staged.stage @@ fun () -> String.contains hash_eq_0 chr_into_hash_eq_0)
 
 let test_exists3 =
   Test.make ~name:"string exists not equal" (Staged.stage @@ fun () -> String.contains hash_neq_0 random_chr)
 
-(* function  *)
+(* 4- function find not done *)
+
+  let switch () = ()
+  let reset () = ()
+
+  let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
+  let f_random (v : int) = v = Char.code random_chr
+
+let test_find0 =
+  Test.make ~name:"eqaf find equal" (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_hash_eq_0 hash_eq_0)
+let test_find1 =
+  Test.make ~name:"eqaf find not equal" (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_random hash_neq_0)
+let test_find2 =
+  Test.make ~name:"string find equal" (Staged.stage @@ fun () -> String.index hash_eq_0 chr_into_hash_eq_0)
+let test_find3 =
+  Test.make ~name:"string find not equal" (Staged.stage @@ fun () -> try String.index hash_neq_0 random_chr with Not_found -> (-1))
+
+
+(* 5- function divmood *)
 
 let benchmark () =
   let ols =
@@ -102,9 +119,11 @@ let benchmark () =
   in
   let test_exists = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
   in
+  let test_find = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
+  in
   let raw_results =
     Benchmark.all cfg instances
-    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare; test_exists ])
+    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
   in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances

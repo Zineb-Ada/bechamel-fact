@@ -67,8 +67,8 @@ let test_compare3 =
 
 (* 3- function exists *)
 let constant = ref (Char.code chr_into_hash_eq_0)
-let reset () = constant := Char.code chr_into_hash_eq_0
-let switch () = constant := Char.code random_chr
+(* let reset () = constant := Char.code chr_into_hash_eq_0
+let switch () = constant := Char.code random_chr *)
 
 let f (v : int) = v = !constant
 
@@ -82,7 +82,7 @@ let test_exists2 =
 let test_exists3 =
   Test.make ~name:"string exists not equal" (Staged.stage @@ fun () -> String.contains hash_neq_0 random_chr)
 
-(* 4- function find not done *)
+(* 4- function find  *)
 
   let switch () = ()
   let reset () = ()
@@ -99,8 +99,6 @@ let test_find2 =
 let test_find3 =
   Test.make ~name:"string find not equal" (Staged.stage @@ fun () -> try String.index hash_neq_0 random_chr with Not_found -> (-1))
 
-
-(* 5- function divmood *)
 
 let benchmark () =
   let ols =
@@ -119,9 +117,11 @@ let benchmark () =
   in
   let test_exists = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
   in
+  let test_find = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
+  in
   let raw_results =
     Benchmark.all cfg instances
-    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare; test_exists ])
+    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
   in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
