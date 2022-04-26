@@ -41,7 +41,7 @@ let random_chr =
   go 10
 
 (* let ( <.> ) *)
-(* 1- function equal done*)
+(* 1- function equal *)
 let test_equal0 =
   Test.make ~name:"eqaf equal equal" (Staged.stage @@ fun () -> Eqaf.equal hash_eq_0 hash_eq_1)
 let test_equal1 =
@@ -53,7 +53,7 @@ let test_equal2 =
 let test_equal3 =
   Test.make ~name:"string equal not equal" (Staged.stage @@ fun () -> String.equal hash_neq_0 hash_neq_1)
 
-(* 2- function compare done*)
+(* 2- function compare *)
 let test_compare0 =
   Test.make ~name:"eqaf compare equal" (Staged.stage @@ fun () -> Eqaf.compare_be hash_eq_0 hash_eq_1)
 let test_compare1 =
@@ -66,9 +66,6 @@ let test_compare3 =
   Test.make ~name:"string compare not equal" (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
 
 (* 3- function exists *)
-(* let constant = ref (Char.code chr_into_hash_eq_0) *)
-(* let reset () = constant := Char.code chr_into_hash_eq_0
-let switch () = constant := Char.code random_chr *)
 
 let f_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
 let f_neq_0 (v : int) = v = Char.code random_chr
@@ -83,9 +80,6 @@ let test_exists3 =
   Test.make ~name:"string exists not equal" (Staged.stage @@ fun () -> String.contains hash_neq_0 random_chr)
 
 (* 4- function find  *)
-
-  (* let switch () = ()
-  let reset () = () *)
 
   let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
   let f_random (v : int) = v = Char.code random_chr
@@ -111,35 +105,32 @@ let benchmark () =
     Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5)
       ~kde:(Some 1000) ()
   in
-  let test_equal = Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal0; test_equal1; test_equal2; test_equal3 ] 
+  let test_equal = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_equal0; test_equal1; test_equal2; test_equal3 ] 
   in 
-  let test_compare = Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ test_compare0; test_compare1; test_compare2; test_compare3 ] 
+  let test_compare = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_compare0; test_compare1; test_compare2; test_compare3 ] 
   in
-  let test_exists = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
+  let test_exists = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
   in
-  let test_find = Test.make_grouped ~name:"find" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
+  let test_find = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
   in
   let raw_results =
     Benchmark.all cfg instances
-    (Test.make_grouped ~name:"eqaf" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
+    (Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
   in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
+  let pr_bench name value = 
+    Fmt.pr {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f}]}]}@.|} 
+      name value in
   let results = Analyze.merge ols instances results in
-  
-  Printf.printf ("%d \n%!") (Hashtbl.length (results));
-  Hashtbl.iter (fun c v -> 
-    Printf.printf ("%s \n%!") c;
+  let monotoniclock = Hashtbl.find results "monotonic-clock" in
     Hashtbl.iter (fun c v ->
-      Printf.printf ("%s \n%!") c;
       let r2 = Analyze.OLS.r_square v in
-      match r2 with 
-        None -> Printf.printf ("we don't have it")
-        |Some r2 -> Printf.printf ("%f \n%!") r2
-      )v
-    )
-    results;
+        match r2 with 
+          None -> Printf.printf ("we don't have it")
+          |Some r2 ->  pr_bench c r2  ;
+      ) monotoniclock;
   (results, raw_results)
 
 let nothing _ = Ok ()
@@ -147,11 +138,3 @@ let nothing _ = Ok ()
 let () =
   let _ = benchmark () in
     ()
-  (* let results =
-    let open Bechamel_js in *)
-    (* emit 
-    ~dst:(Channel stdout) nothing ~compare:String.compare ~x_label:Measure.run
-      ~y_label:(Measure.label Instance.monotonic_clock)
-      results
-  in
-  match results with Ok () -> () | Error (`Msg err) -> invalid_arg err *)

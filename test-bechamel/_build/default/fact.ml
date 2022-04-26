@@ -111,35 +111,50 @@ let benchmark () =
     Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5)
       ~kde:(Some 1000) ()
   in
-  let test_equal = Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal0; test_equal1; test_equal2; test_equal3 ] 
+  let test_equal = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_equal0; test_equal1; test_equal2; test_equal3 ] 
   in 
-  let test_compare = Test.make_grouped ~name:"compare" ~fmt:"%s %s" [ test_compare0; test_compare1; test_compare2; test_compare3 ] 
+  let test_compare = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_compare0; test_compare1; test_compare2; test_compare3 ] 
   in
-  let test_exists = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
+  let test_exists = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
   in
-  let test_find = Test.make_grouped ~name:"find" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
+  let test_find = Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
   in
   let raw_results =
     Benchmark.all cfg instances
-    (Test.make_grouped ~name:"eqaf" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
+    (Test.make_grouped ~name:"" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
   in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
+  let pr_bench name value = 
+    Fmt.pr {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f}]}]}@.|} 
+      name value in
   let results = Analyze.merge ols instances results in
-  (* Hashtbl.find Hashtbl.monotonic-clock results 
-  Printf.printf ("%d \n%!") (Hashtbl.length (results)); *)
-  Hashtbl.iter (fun c _ -> 
+  let monotoniclock = Hashtbl.find results "monotonic-clock" in
+    Hashtbl.iter (fun c v ->
+      (* Printf.printf ("%s \n%!") c; *)
+      let r2 = Analyze.OLS.r_square v in
+        match r2 with 
+          None -> Printf.printf ("we don't have it")
+          |Some r2 ->  pr_bench c r2  ;
+      ) monotoniclock;
+
+
+      
+  
+  (* Printf.printf ("%d \n%!") (Hashtbl.length (results));
+    Printf.printf ("%s \n%!") monotoniclock2;
+  Hashtbl.iter (fun c v -> 
     Printf.printf ("%s \n%!") c;
-    (* Hashtbl.iter (fun c v ->
+    Hashtbl.iter (fun c v ->
       Printf.printf ("%s \n%!") c;
       let r2 = Analyze.OLS.r_square v in
       match r2 with 
         None -> Printf.printf ("we don't have it")
         |Some r2 -> Printf.printf ("%f \n%!") r2
-      )v *)
+      )v
     )
-    results;
+    results; *)
   (results, raw_results)
 
 let nothing _ = Ok ()
