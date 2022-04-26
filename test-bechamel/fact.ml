@@ -66,26 +66,26 @@ let test_compare3 =
   Test.make ~name:"string compare not equal" (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
 
 (* 3- function exists *)
-let constant = ref (Char.code chr_into_hash_eq_0)
+(* let constant = ref (Char.code chr_into_hash_eq_0) *)
 (* let reset () = constant := Char.code chr_into_hash_eq_0
 let switch () = constant := Char.code random_chr *)
 
-let f (v : int) = v = !constant
+let f_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
+let f_neq_0 (v : int) = v = Char.code random_chr
 
 let test_exists0 =
-  Test.make ~name:"eqaf exists equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f hash_eq_0)
+  Test.make ~name:"eqaf exists equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f:f_eq_0 hash_eq_0)
 let test_exists1 =
-  Test.make ~name:"eqaf exists not equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f hash_neq_0)
+  Test.make ~name:"eqaf exists not equal" (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f:f_neq_0 hash_neq_0)
 let test_exists2 =
   Test.make ~name:"string exists equal" (Staged.stage @@ fun () -> String.contains hash_eq_0 chr_into_hash_eq_0)
-
 let test_exists3 =
   Test.make ~name:"string exists not equal" (Staged.stage @@ fun () -> String.contains hash_neq_0 random_chr)
 
 (* 4- function find  *)
 
-  let switch () = ()
-  let reset () = ()
+  (* let switch () = ()
+  let reset () = () *)
 
   let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
   let f_random (v : int) = v = Char.code random_chr
@@ -117,11 +117,11 @@ let benchmark () =
   in
   let test_exists = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_exists0; test_exists1; test_exists2; test_exists3 ] 
   in
-  let test_find = Test.make_grouped ~name:"exists" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
+  let test_find = Test.make_grouped ~name:"find" ~fmt:"%s %s" [ test_find0; test_find1; test_find2; test_find3 ] 
   in
   let raw_results =
     Benchmark.all cfg instances
-    (Test.make_grouped ~name:"equal" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
+    (Test.make_grouped ~name:"eqaf" ~fmt:"%s %s" [ test_equal; test_compare; test_exists; test_find ])
   in  
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
