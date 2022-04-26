@@ -31,8 +31,7 @@ let hash_neq_0 = random 4096
 
 let hash_neq_1 =
   let rec go limit =
-    if limit <= 0 then 
-      failwith "Impossible to generate different hashes.";
+    if limit <= 0 then failwith "Impossible to generate different hashes.";
     let res = random 4096 in
     if res = hash_neq_0 then go (pred limit) else res
   in
@@ -41,7 +40,8 @@ let hash_neq_1 =
 let random_chr =
   let rec go limit =
     if limit <= 0 then
-      failwith "Impossible to generate a byte which does not appear into hash_neq_0.";
+      failwith
+        "Impossible to generate a byte which does not appear into hash_neq_0.";
     let res = Char.chr (Random.int 256) in
     if not (String.contains hash_neq_0 res) then res else go (pred limit)
   in
@@ -170,7 +170,7 @@ let benchmark () =
     (fun c v ->
       let r2 = Analyze.OLS.r_square v in
       match r2 with
-      | None -> Printf.printf "we don't have it"
+      | None -> Printf.printf ""
       | Some r2 -> pr_bench c r2)
     monotoniclock;
   (results, raw_results)
