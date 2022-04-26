@@ -127,16 +127,31 @@ let benchmark () =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
   let results = Analyze.merge ols instances results in
+  
+  Printf.printf ("%d \n%!") (Hashtbl.length (results));
+  Hashtbl.iter (fun c v -> 
+    Printf.printf ("%s \n%!") c;
+    Hashtbl.iter (fun c v ->
+      Printf.printf ("%s \n%!") c;
+      let r2 = Analyze.OLS.r_square v in
+      match r2 with 
+        None -> Printf.printf ("we don't have it")
+        |Some r2 -> Printf.printf ("%f \n%!") r2
+      )v
+    )
+    results;
   (results, raw_results)
 
 let nothing _ = Ok ()
 
 let () =
-  let results = benchmark () in
-  let results =
-    let open Bechamel_js in
-    emit ~dst:(Channel stdout) nothing ~compare:String.compare ~x_label:Measure.run
+  let _ = benchmark () in
+    ()
+  (* let results =
+    let open Bechamel_js in *)
+    (* emit 
+    ~dst:(Channel stdout) nothing ~compare:String.compare ~x_label:Measure.run
       ~y_label:(Measure.label Instance.monotonic_clock)
       results
   in
-  match results with Ok () -> () | Error (`Msg err) -> invalid_arg err
+  match results with Ok () -> () | Error (`Msg err) -> invalid_arg err *)
