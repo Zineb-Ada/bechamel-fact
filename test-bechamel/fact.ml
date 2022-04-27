@@ -146,7 +146,7 @@ let test_divmood3 =
   Test.make ~name:"string find not equal"
     ( Staged.stage @@ fun () ->
       try String.index hash_neq_0 random_chr with Not_found -> -1 )
-  
+
 (* divmood not done *)
 
 let benchmark () =
@@ -186,7 +186,7 @@ let benchmark () =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
   let pr_bench name value =
-    Fmt.pr
+    Format.printf
       {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f}]}]}@.|}
       name value
   in
