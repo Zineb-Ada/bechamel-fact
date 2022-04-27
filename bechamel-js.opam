@@ -23,5 +23,6 @@ depends: [
   "bechamel"   
   "rresult"
   "ocplib-json-typed" {>= "0.7.1"}
+  "base64"         {with-test}
   "jsonm"
   "fmt"        {>= "0.9.0"}
