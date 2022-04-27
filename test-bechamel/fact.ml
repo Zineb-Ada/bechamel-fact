@@ -31,8 +31,7 @@ let hash_neq_0 = random 4096
 
 let hash_neq_1 =
   let rec go limit =
-    if limit <= 0 then 
-      failwith "Impossible to generate different hashes.";
+    if limit <= 0 then failwith "Impossible to generate different hashes.";
     let res = random 4096 in
     if res = hash_neq_0 then go (pred limit) else res
   in
@@ -41,12 +40,14 @@ let hash_neq_1 =
 let random_chr =
   let rec go limit =
     if limit <= 0 then
-      failwith "Impossible to generate a byte which does not appear into hash_neq_0.";
+      failwith
+        "Impossible to generate a byte which does not appear into hash_neq_0.";
     let res = Char.chr (Random.int 256) in
     if not (String.contains hash_neq_0 res) then res else go (pred limit)
   in
   go 10
 
+(* let ( <.> ) *)
 (* 1- function equal *)
 let test_equal0 =
   Test.make ~name:"eqaf equal equal"
@@ -128,6 +129,7 @@ let benchmark () =
   let ols =
     Analyze.ols ~bootstrap:0 ~r_square:true ~predictors:Measure.[| run |]
   in
+
   let instances =
     Instance.[ minor_allocated; major_allocated; monotonic_clock ]
   in
@@ -160,7 +162,7 @@ let benchmark () =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
   let pr_bench name value =
-    Format.printf
+    Fmt.pr
       {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f}]}]}@.|}
       name value
   in
