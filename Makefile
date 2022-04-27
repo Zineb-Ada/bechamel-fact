@@ -1,3 +1,3 @@
 .PHONY: bench
 bench:
-	dune exec ./fact.exe
+	dune exec test-bechamel/fact.exe
