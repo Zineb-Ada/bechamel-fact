@@ -1,8 +1,6 @@
 (executable
  (name fact)
  (modules fact)
- (public_name bechamel-js.examples.fact)
- (package bechamel-js)
  (libraries bechamel bechamel-js eqaf base64))
 
 (rule
