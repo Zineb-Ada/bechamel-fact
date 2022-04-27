@@ -25,4 +25,3 @@ depends: [
   "ocplib-json-typed" {>= "0.7.1"}
   "jsonm"
   "fmt"        {>= "0.9.0"}
-]
