@@ -124,7 +124,7 @@ let test_find3 =
   Test.make ~name:"string find not equal"
     ( Staged.stage @@ fun () ->
       try String.index hash_neq_0 random_chr with Not_found -> -1 )
-
+(* 
 (* 4- function divmood  *)
 
 let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
@@ -147,7 +147,7 @@ let test_divmood3 =
     ( Staged.stage @@ fun () ->
       try String.index hash_neq_0 random_chr with Not_found -> -1 )
 
-(* divmood not done *)
+divmood not done *)
 
 let benchmark () =
   let ols =
