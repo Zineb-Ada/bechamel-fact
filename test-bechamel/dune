@@ -1,7 +1,7 @@
 (executable
  (name fact)
  (modules fact)
- (libraries bechamel bechamel-js eqaf base64))
+ (libraries bechamel eqaf base64))
 
 (rule
  (targets fact.json)
