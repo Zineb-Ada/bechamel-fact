@@ -20,7 +20,7 @@ depends: [
   "ocaml"      {>= "4.08.0"}
   "dune"       {>= "2.0.0"}
   "result"     {>= "1.5"}
-  "bechamel"   {= version}
+  "bechamel"   
   "rresult"
   "ocplib-json-typed" {>= "0.7.1"}
   "jsonm"
