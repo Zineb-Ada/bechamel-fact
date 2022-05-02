@@ -66,6 +66,9 @@ let test_equal3 =
     (Staged.stage @@ fun () -> String.equal hash_neq_0 hash_neq_1)
 
 (* 2- function compare *)
+let cfg =
+  Benchmark.cfg ~start:100 
+
 let test_compare0 =
   Test.make ~name:"eqaf compare equal"
     (Staged.stage @@ fun () -> Eqaf.compare_be hash_eq_0 hash_eq_1)
@@ -79,7 +82,7 @@ let test_compare2 =
     (Staged.stage @@ fun () -> String.compare hash_eq_0 hash_eq_1)
 
 let test_compare3 =
-  Test.make ~name:"string compare not equal"
+  Test.make ~name:"string compare not equal"  
     (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
 
 (* 3- function exists *)
@@ -124,30 +127,30 @@ let test_find3 =
   Test.make ~name:"string find not equal"
     ( Staged.stage @@ fun () ->
       try String.index hash_neq_0 random_chr with Not_found -> -1 )
-(* 
-(* 4- function divmood  *)
+(*
+   (* 4- function divmood  *)
 
-let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
-let f_random (v : int) = v = Char.code random_chr
+   let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
+   let f_random (v : int) = v = Char.code random_chr
 
-let test_divmood0 =
-  Test.make ~name:"eqaf find equal"
-    (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_hash_eq_0 hash_eq_0)
+   let test_divmood0 =
+     Test.make ~name:"eqaf find equal"
+       (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_hash_eq_0 hash_eq_0)
 
-let test_divmood1 =
-  Test.make ~name:"eqaf find not equal"
-    (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_random hash_neq_0)
+   let test_divmood1 =
+     Test.make ~name:"eqaf find not equal"
+       (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_random hash_neq_0)
 
-let test_divmood2 =
-  Test.make ~name:"string find equal"
-    (Staged.stage @@ fun () -> String.index hash_eq_0 chr_into_hash_eq_0)
+   let test_divmood2 =
+     Test.make ~name:"string find equal"
+       (Staged.stage @@ fun () -> String.index hash_eq_0 chr_into_hash_eq_0)
 
-let test_divmood3 =
-  Test.make ~name:"string find not equal"
-    ( Staged.stage @@ fun () ->
-      try String.index hash_neq_0 random_chr with Not_found -> -1 )
+   let test_divmood3 =
+     Test.make ~name:"string find not equal"
+       ( Staged.stage @@ fun () ->
+         try String.index hash_neq_0 random_chr with Not_found -> -1 )
 
-divmood not done *)
+   divmood not done *)
 
 let benchmark () =
   let ols =
@@ -157,8 +160,9 @@ let benchmark () =
   let instances =
     Instance.[ minor_allocated; major_allocated; monotonic_clock ]
   in
+
   let cfg =
-    Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5)
+    Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5) ~start:1000
       ~kde:(Some 1000) ()
   in
   let test_equal =
@@ -186,7 +190,7 @@ let benchmark () =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
   let pr_bench name value =
-    Format.printf
+    Format.printf 
       {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f}]}]}@.|}
       name value
   in
@@ -206,3 +210,4 @@ let nothing _ = Ok ()
 let () =
   let _ = benchmark () in
   ()
+
