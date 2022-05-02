@@ -162,7 +162,7 @@ let benchmark () =
   in
 
   let cfg =
-    Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5) ~start:1000
+    Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 1.) ~start:1000
       ~kde:(Some 1000) ()
   in
   let test_equal =
