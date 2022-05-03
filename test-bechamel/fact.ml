@@ -47,40 +47,25 @@ let random_chr =
   in
   go 10
 
-(* let ( <.> ) *)
 (* 1- function equal *)
 let test_equal0 =
-  Test.make ~name:"eqaf equal equal"
+  Test.make ~name:"equal"
     (Staged.stage @@ fun () -> Eqaf.equal hash_eq_0 hash_eq_1)
 
 let test_equal1 =
-  Test.make ~name:"eqaf equal not equal"
+  Test.make ~name:"not equal"
     (Staged.stage @@ fun () -> Eqaf.equal hash_neq_0 hash_neq_1)
 
-let test_equal2 =
-  Test.make ~name:"string equal equal"
-    (Staged.stage @@ fun () -> String.equal hash_eq_0 hash_eq_1)
-
-let test_equal3 =
-  Test.make ~name:"string equal not equal"
-    (Staged.stage @@ fun () -> String.equal hash_neq_0 hash_neq_1)
 
 (* 2- function compare *)
+
 let test_compare0 =
-  Test.make ~name:"eqaf compare equal"
+  Test.make ~name:"equal"
     (Staged.stage @@ fun () -> Eqaf.compare_be hash_eq_0 hash_eq_1)
 
 let test_compare1 =
-  Test.make ~name:"eqaf compare not equal"
+  Test.make ~name:"not equal"
     (Staged.stage @@ fun () -> Eqaf.compare_be hash_neq_0 hash_neq_1)
-
-let test_compare2 =
-  Test.make ~name:"string compare equal"
-    (Staged.stage @@ fun () -> String.compare hash_eq_0 hash_eq_1)
-
-let test_compare3 =
-  Test.make ~name:"string compare not equal"
-    (Staged.stage @@ fun () -> String.compare hash_neq_0 hash_neq_1)
 
 (* 3- function exists *)
 
@@ -88,20 +73,12 @@ let f_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
 let f_neq_0 (v : int) = v = Char.code random_chr
 
 let test_exists0 =
-  Test.make ~name:"eqaf exists equal"
+  Test.make ~name:"equal"
     (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f:f_eq_0 hash_eq_0)
 
 let test_exists1 =
-  Test.make ~name:"eqaf exists not equal"
+  Test.make ~name:"not equal"
     (Staged.stage @@ fun () -> Eqaf.exists_uint8 ~f:f_neq_0 hash_neq_0)
-
-let test_exists2 =
-  Test.make ~name:"string exists equal"
-    (Staged.stage @@ fun () -> String.contains hash_eq_0 chr_into_hash_eq_0)
-
-let test_exists3 =
-  Test.make ~name:"string exists not equal"
-    (Staged.stage @@ fun () -> String.contains hash_neq_0 random_chr)
 
 (* 4- function find  *)
 
@@ -109,45 +86,12 @@ let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
 let f_random (v : int) = v = Char.code random_chr
 
 let test_find0 =
-  Test.make ~name:"eqaf find equal"
+  Test.make ~name:"equal"
     (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_hash_eq_0 hash_eq_0)
 
 let test_find1 =
-  Test.make ~name:"eqaf find not equal"
+  Test.make ~name:"not equal"
     (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_random hash_neq_0)
-
-let test_find2 =
-  Test.make ~name:"string find equal"
-    (Staged.stage @@ fun () -> String.index hash_eq_0 chr_into_hash_eq_0)
-
-let test_find3 =
-  Test.make ~name:"string find not equal"
-    ( Staged.stage @@ fun () ->
-      try String.index hash_neq_0 random_chr with Not_found -> -1 )
-(* 
-(* 4- function divmood  *)
-
-let f_hash_eq_0 (v : int) = v = Char.code chr_into_hash_eq_0
-let f_random (v : int) = v = Char.code random_chr
-
-let test_divmood0 =
-  Test.make ~name:"eqaf find equal"
-    (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_hash_eq_0 hash_eq_0)
-
-let test_divmood1 =
-  Test.make ~name:"eqaf find not equal"
-    (Staged.stage @@ fun () -> Eqaf.find_uint8 ~f:f_random hash_neq_0)
-
-let test_divmood2 =
-  Test.make ~name:"string find equal"
-    (Staged.stage @@ fun () -> String.index hash_eq_0 chr_into_hash_eq_0)
-
-let test_divmood3 =
-  Test.make ~name:"string find not equal"
-    ( Staged.stage @@ fun () ->
-      try String.index hash_neq_0 random_chr with Not_found -> -1 )
-
-divmood not done *)
 
 let benchmark () =
   let ols =
@@ -158,48 +102,51 @@ let benchmark () =
     Instance.[ minor_allocated; major_allocated; monotonic_clock ]
   in
   let cfg =
-    Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 0.5)
-      ~kde:(Some 1000) ()
+    Benchmark.cfg ~limit:2000 ~stabilize:true ~quota:(Time.second 1.)
+      ~start:1000 ~kde:(Some 1000) ()
+
   in
   let test_equal =
-    Test.make_grouped ~name:"" ~fmt:"%s %s"
-      [ test_equal0; test_equal1; test_equal2; test_equal3 ]
+    Test.make_grouped ~name:"equal" ~fmt:"%s %s"
+      [ test_equal0; test_equal1 ]
   in
   let test_compare =
-    Test.make_grouped ~name:"" ~fmt:"%s %s"
-      [ test_compare0; test_compare1; test_compare2; test_compare3 ]
+    Test.make_grouped ~name:"compare" ~fmt:"%s %s"
+      [ test_compare0; test_compare1 ]
   in
   let test_exists =
-    Test.make_grouped ~name:"" ~fmt:"%s %s"
-      [ test_exists0; test_exists1; test_exists2; test_exists3 ]
+    Test.make_grouped ~name:"exists" ~fmt:"%s %s"
+      [ test_exists0; test_exists1 ]
   in
   let test_find =
-    Test.make_grouped ~name:"" ~fmt:"%s %s"
-      [ test_find0; test_find1; test_find2; test_find3 ]
+    Test.make_grouped ~name:"find" ~fmt:"%s %s"
+      [ test_find0; test_find1 ]
   in
   let raw_results =
     Benchmark.all cfg instances
-      (Test.make_grouped ~name:"" ~fmt:"%s %s"
+      (Test.make_grouped ~name:"eqaf" ~fmt:"%s %s"
          [ test_equal; test_compare; test_exists; test_find ])
   in
   let results =
     List.map (fun instance -> Analyze.all ols instance raw_results) instances
   in
   let pr_bench name value =
-    Format.printf
-      {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f}]}]}@.|}
-      name value
-  in
+
+      Format.printf
+         {|{"results": [{"name": "eqaf", "metrics": [{"name": "%s", "value": %f, "units": "ms"}]}]}@.|}
+         name value
+     in
   let results = Analyze.merge ols instances results in
-  let monotoniclock = Hashtbl.find results "monotonic-clock" in
-  Hashtbl.iter
-    (fun c v ->
-      let r2 = Analyze.OLS.r_square v in
-      match r2 with
-      | None -> Printf.printf "we don't have it"
-      | Some r2 -> pr_bench c r2)
-    monotoniclock;
-  (results, raw_results)
+
+let monotoniclock = Hashtbl.find results "monotonic-clock" in
+   Hashtbl.iter
+     (fun c v ->
+       let r2 = Analyze.OLS.estimates v in
+       match r2 with
+       | None -> Printf.printf "we don't have it"
+       | Some r2 -> List.iter (pr_bench c)r2)
+     monotoniclock;
+   (results, raw_results)
 
 let nothing _ = Ok ()
 
